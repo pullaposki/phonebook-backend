@@ -1,5 +1,7 @@
-﻿// Import module to interact with MongoDB
+﻿
+// Import module to interact with MongoDB
 const mongoose = require('mongoose')
+
 
 // Check for command line argument as password
 if (process.argv.length<3) {
