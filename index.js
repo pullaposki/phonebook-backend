@@ -9,6 +9,7 @@ app.use(express.static("dist"));
 app.use(cors());
 
 const morgan = require('morgan');
+const {response} = require("express");
 morgan.token('post_data', (req) => JSON.stringify(req.body));
 const format = ':method :url :status :res[content-length] - :response-time ms :post_data'
 app.use(morgan(format));
@@ -23,45 +24,26 @@ app.get('/api/persons', (request, response) => {
 })
 
 app.get('/api/persons/:id', (request, response) => {
-    // const id = Number(request.params.id)
-    // if (isNaN(id)) {
-    //     response.status(400).send({ error: 'Invalid id provided' });
-    //     return;
-    // }
-    // const person = persons.find(person => person.id === id)
     Person.findById(request.params.id).then(person => {
         response.json(person);
     })
-    //
-    // console.log(person);
-    //
-    // if (person) {
-    //     console.log(`Found person with id: ${id}`);
-    //     response.json(person);
-    // } else {
-    //     console.log(`Person not found with id: ${id}`);
-    //     response.status(404).end();
-    // }
 })
 
-// app.get("/info/", (request, response) => {
-//     const persons=Person.find({});
-//     const numberOfPersons = persons.length;
-//     const timeStamp = new Date();
-//     response.send(`Phonebook has info for ${numberOfPersons} people<br>${timeStamp}`);
-// })
+app.delete("/api/persons/:id", (request, response) => {
+    const id = request.params.id;
 
-app.delete("/api/persons/:id", (request, response) =>{
-    const id = Number(request.params.id);
-    const initialLength = persons.length;
-    persons = persons.filter(person => person.id !== id);
-
-    if (persons.length === initialLength) {
-        response.status(404).json({ error: 'Invalid id provided' });
-    }else {
-        console.log("delete test");
+    Person.findById(id)
+        .then(personDocument => {
+            if(personDocument) {
+                return Person.deleteOne({ _id: id });
+            } else {
+                return response.status(404).send({message: 'Person not found'});
+            }
+        }).then(() => {
         response.status(204).end();
-    }
+    }).catch(err => {
+        response.status(500).send({message: 'An error occurred', error: err.message});
+    });
 });
 
 app.post("/api/persons/", (request, response)=>{

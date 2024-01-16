@@ -1,6 +1,8 @@
 ﻿const mongoose = require('mongoose')
-
-const url =process.env.MONGO_URI2;
+const password = process.env.MONGODB_PASSWORD;
+const name = process.env.MONGODB_USER;
+const mongo_url=process.env.MONGODB_URL;
+const url =`mongodb+srv://${name}:${password}@${mongo_url}/persons?retryWrites=true&w=majority`;
 
 mongoose.set('strictQuery',false)
 mongoose.connect(url)
